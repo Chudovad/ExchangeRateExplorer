@@ -1,0 +1,60 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ExchangeRateExplorer" 
+        xmlns:viewmodels="clr-namespace:ExchangeRateExplorer.ViewModels"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:Models="clr-namespace:ExchangeRateExplorer.Models" x:Class="ExchangeRateExplorer.MainWindow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" WindowState="Maximized">
+    <Window.DataContext>
+        <viewmodels:MainViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.ColumnSpan="2">
+            <TextBlock Text="Начало периода:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <DatePicker Width="200" SelectedDate="{Binding StartDatePicker}"/>
+            <TextBlock Text="Конец периода:" VerticalAlignment="Center" Margin="10,0,10,0"/>
+            <DatePicker Width="200" SelectedDate="{Binding EndDatePicker}"/>
+        </StackPanel>
+        <telerik:RadGridView Grid.Row="1" x:Name="dataGrid" AutoGenerateColumns="False" ItemsSource="{Binding ListExchangeRate}" Margin="0,10,0,10" CanUserDeleteRows="False" HorizontalAlignment="Left">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="Дата" DataMemberBinding="{Binding Date, StringFormat=yyyy-MM-dd}" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn Header="Аббревиатура" DataMemberBinding="{Binding Cur_Abbreviation}" IsReadOnly="False"/>
+                <telerik:GridViewDataColumn Header="Наименование" DataMemberBinding="{Binding Cur_Name}" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn Header="Курс" DataMemberBinding="{Binding Cur_OfficialRate}" IsReadOnly="False"/>
+                <telerik:GridViewColumn>
+                    <telerik:GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="График" Command="{Binding DataContext.ShowChartCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding}" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </telerik:GridViewColumn.CellTemplate>
+                </telerik:GridViewColumn>
+            </telerik:RadGridView.Columns>
+        </telerik:RadGridView>
+        <telerik:RadCartesianChart x:Name="currencyChart" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="1" Margin="10" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+            <telerik:RadCartesianChart.HorizontalAxis>
+                <telerik:DateTimeContinuousAxis LabelFormat="dd/MM/yyyy" LabelFitMode="Rotate" MajorStepUnit="Day" />
+            </telerik:RadCartesianChart.HorizontalAxis>
+            <telerik:RadCartesianChart.VerticalAxis>
+                <telerik:LinearAxis/>
+            </telerik:RadCartesianChart.VerticalAxis>
+            <telerik:LineSeries ItemsSource="{Binding ExchangeRates}"
+                            CategoryBinding="Date"
+                            ValueBinding="Cur_OfficialRate"/>
+        </telerik:RadCartesianChart>
+        <Button Content="Сохранить" Width="120" Grid.Row="2" HorizontalAlignment="Left" Command="{Binding SaveChangesCommand}" Margin="0,10,0,10" Grid.ColumnSpan="2"/>
+    </Grid>
+</Window>
